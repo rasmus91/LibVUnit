@@ -1,5 +1,6 @@
 project('vunit', 'vala', 'c', version: '0.1', license: 'GPL')
 
+gnome = import('gnome')
 
 #dependencies = [
 #    dependency('gee-0.8'),
@@ -31,8 +32,3 @@ runner_dependencies = [
 
 subdir('runner/src')
 #Stuff below this is to change if you want to run this on a different library of tests
-
-
-
-
-
