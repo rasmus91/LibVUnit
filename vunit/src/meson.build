@@ -6,17 +6,17 @@ vunit_src = [
     'TestBase.vala'
 ]
 
-vunit_base_name = 'VUnit' + '-' + meson.project_version()
+vunit_base_name = meson.project_name() + '-' + meson.project_version()#'vunit-1.0.'
 vunit_gir = vunit_base_name + '.gir'
-vunit_vapi = vunit_base_name + '.vapi'
+vunit_typelib = vunit_base_name + '.typelib'
 
-vunit_lib = shared_library(
+libvunit = shared_library(
     meson.project_name(),
     vunit_src,
     dependencies : lib_dependencies,
 
     vala_header: meson.project_name() + '.h',
-    vala_vapi: vunit_vapi,
+    vala_vapi: meson.project_name() + '-' + meson.project_version() + '.vapi',
     vala_gir: vunit_gir,
 
     #version: meson.project_version(),
@@ -26,18 +26,21 @@ vunit_lib = shared_library(
 
 
 
-#custom_target('vunit typelib',
-#    depends: vunit_lib,
-#    command: [g_ir_compiler, '--output', '@OUTPUT@', '@INPUT@'],
-#    input: meson.current_build_dir() / 'vunit-0.1.gir',
-#    output: meson.project_name() + '-' + meson.project_version() + '.typelib',
-#    install: true,
-#    install_dir: get_option('libdir') / 'girepository-1.0')
+custom_target(vunit_typelib,
+    depends: libvunit,
+    command: [g_ir_compiler, '--output', '@OUTPUT@', meson.current_build_dir() / vunit_gir],
+    #input: meson.current_build_dir() / 'vunit-0.1.gir',
+    output: vunit_typelib,
+    install: true,
+    install_dir: get_option('libdir') / 'girepository-1.0')
 
-vunit_dep = declare_dependency(link_with: vunit_lib, include_directories: include_directories('.'))
+
+
+
+vunit_dep = declare_dependency(link_with: libvunit, include_directories: include_directories('.'))
 
 vunit_pc = pkg.generate(
-    vunit_lib,
+    libvunit,
     name: meson.project_name() + '-' + meson.project_version(),
     requires: lib_dependencies,
     description: 'A xUnit like test implementation library',
