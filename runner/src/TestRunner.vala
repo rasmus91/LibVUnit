@@ -40,6 +40,7 @@ namespace VUnit.Runner{
                 try{
                     message("Trying to find: %s, in: %s".printf(test_namespace, path));
                     runner.repository.require_private(path, test_namespace, null, 0);
+                    message("found ya!");
                 }catch(Error err){
                     stdout.printf("\nFailed to load namespace: %s, with Typelib in: %s, error was: %s\n", test_namespace, path, err.message);
                     return 2;

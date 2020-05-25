@@ -6,7 +6,7 @@ vunit_src = [
     'TestBase.vala'
 ]
 
-vunit_base_name = meson.project_name() + '-' + meson.project_version()#'vunit-1.0.'
+vunit_base_name = 'VUnit' + '-' + meson.project_version()#'vunit-1.0.'
 vunit_gir = vunit_base_name + '.gir'
 vunit_typelib = vunit_base_name + '.typelib'
 
