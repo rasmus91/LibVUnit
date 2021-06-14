@@ -2,7 +2,14 @@
 namespace VUnit{
 
 
-    public class TestBase : Object{
+    public abstract class TestBase : GLib.Object{
+
+        public virtual void set_up() throws Error{
+            return;
+        }
+        public virtual void tear_down() throws Error{
+            return;
+        }
 
 
     }
