@@ -10,6 +10,8 @@ vunit_base_name = 'VUnit' + '-' + meson.project_version()#'vunit-1.0.'
 vunit_gir = vunit_base_name + '.gir'
 vunit_typelib = vunit_base_name + '.typelib'
 
+vunit_build_dir = meson.current_build_dir()
+
 libvunit = shared_library(
     meson.project_name(),
     vunit_src,
