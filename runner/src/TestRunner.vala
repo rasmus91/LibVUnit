@@ -10,13 +10,13 @@ namespace VUnit.Runner{
     }
 
     public class TestRunner : Object{
-
         internal HashTable<string, Option> options;
         internal Repository repository;
 
-
         public static int main(string[] args){
             var runner = new TestRunner();
+            //next line must be changed when i find out why VUnit can't be loaded from /usr/local/lib automatically
+            runner.repository.require_private("/usr/local/lib/x86_64-linux-gnu/girepository-1.0", "VUnit", null, 0);
             string test_namespace = null;
             string? path = runner.get_path(args);
 
@@ -41,6 +41,7 @@ namespace VUnit.Runner{
                     message("Trying to find: %s, in: %s".printf(test_namespace, path));
                     runner.repository.require_private(path, test_namespace, null, 0);
                     message("found ya!");
+                    runner.print_rep_info(test_namespace);
                 }catch(Error err){
                     stdout.printf("\nFailed to load namespace: %s, with Typelib in: %s, error was: %s\n", test_namespace, path, err.message);
                     return 2;
@@ -108,7 +109,6 @@ namespace VUnit.Runner{
         }
 
         private Type[] get_test_classes(string test_namespace){
-            typeof(TestBase);
             Gee.List<Type> test_suites = new Gee.ArrayList<Type>();
             for(var i = 0; i < this.repository.get_n_infos(test_namespace); i++){
                 
@@ -118,6 +118,28 @@ namespace VUnit.Runner{
             return test_types;
         }
 
+        private void print_rep_info(string _namespace){
+            int infos = this.repository.get_n_infos(_namespace);
+            string classes[] = {};
+            for (int i = 0; i < infos; i++){
+                BaseInfo info = repository.get_info(_namespace, i);
+                if (info.get_type() == InfoType.OBJECT){
+                    message(info.get_name());
+                    ObjectInfo si = (ObjectInfo) info;
+
+                    message(si.get_n_methods().to_string());
+
+                    for (int j = 0; j < si.get_n_methods(); j++){
+                        message(si.get_method(j).get_symbol());
+                    }
+
+                   
+
+                
+
+                }
+            }
+        }
 
     }
 
