@@ -22,7 +22,6 @@ lib_dependencies = [
 
 subdir('vunit/src')
 
-
 runner_dependencies = [
     g_deps,
     dependency('gobject-introspection-1.0'),
@@ -31,4 +30,6 @@ runner_dependencies = [
 ]
 
 subdir('runner/src')
+
+subdir('vunit/sample')
 #Stuff below this is to change if you want to run this on a different library of tests
