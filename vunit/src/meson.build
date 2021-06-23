@@ -10,6 +10,8 @@ vunit_base_name = 'VUnit' + '-' + meson.project_version()#'vunit-1.0.'
 vunit_gir = vunit_base_name + '.gir'
 vunit_typelib = vunit_base_name + '.typelib'
 
+vunit_build_dir = meson.current_build_dir()
+
 libvunit = shared_library(
     meson.project_name(),
     vunit_src,
@@ -28,8 +30,8 @@ libvunit = shared_library(
 
 custom_target(vunit_typelib,
     depends: libvunit,
-    command: [g_ir_compiler, '--output', '@OUTPUT@', meson.current_build_dir() / vunit_gir],
-    #input: meson.current_build_dir() / 'vunit-0.1.gir',
+    command: [g_ir_compiler, '--shared-library', '@PLAINNAME@', '--output', '@OUTPUT@', meson.current_build_dir() / vunit_gir],
+    input: libvunit,
     output: vunit_typelib,
     install: true,
     install_dir: get_option('libdir') / 'girepository-1.0')
