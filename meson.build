@@ -25,7 +25,7 @@ subdir('vunit/src')
 runner_dependencies = [
     g_deps,
     dependency('gobject-introspection-1.0'),
-    #dependency('gee-0.8'),
+    dependency('gee-0.8'),
     vunit_dep
 ]
 
