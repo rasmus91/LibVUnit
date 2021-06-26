@@ -17,6 +17,9 @@ namespace VUnit.Runner{
             var runner = new TestRunner();
             //next line must be changed when i find out why VUnit can't be loaded from /usr/local/lib automatically
             runner.repository.require_private("/usr/local/lib/x86_64-linux-gnu/girepository-1.0", "VUnit", null, 0);
+            var tbinfo = (RegisteredTypeInfo)runner.repository.find_by_name("VUnit", "TestBase");
+            var tbtype = tbinfo.get_g_type();
+            //runner.repository.require("Gtk", null, 0);
             string test_namespace = null;
             string? path = runner.get_path(args);
 
@@ -32,6 +35,7 @@ namespace VUnit.Runner{
             if(path == null){
                 try{
                     runner.repository.require(test_namespace, null, 0);
+                    runner.print_rep_info(test_namespace);
                 }catch(Error err){
                     stdout.printf("\nFailed to load namespace: %s, error message is: %s\n", test_namespace, err.message);
                     return 2;
@@ -109,7 +113,7 @@ namespace VUnit.Runner{
         }
 
         private Type[] get_test_classes(string test_namespace){
-            Gee.List<Type> test_suites = new Gee.ArrayList<Type>();
+            //Gee.List<Type> test_suites = new Gee.ArrayList<Type>();
             for(var i = 0; i < this.repository.get_n_infos(test_namespace); i++){
                 
             }
@@ -118,24 +122,48 @@ namespace VUnit.Runner{
             return test_types;
         }
 
+        private void libInfo(string _namespace){
+            this.repository.prepend_library_path("/home/rasmus/Projekter/vala/VUnit/build/vunit/sample");
+            message(this.repository.get_shared_library(_namespace));
+
+        }
+
         private void print_rep_info(string _namespace){
+            this.repository.prepend_library_path("/home/rasmus/Projekter/vala/VUnit/build/vunit/sample");
+
             int infos = this.repository.get_n_infos(_namespace);
             string classes[] = {};
             for (int i = 0; i < infos; i++){
                 BaseInfo info = repository.get_info(_namespace, i);
+                //var ri = (RegisteredTypeInfo)info;
+                //var type = ri.get_g_type();
+                //message(info.get_name());
+
                 if (info.get_type() == InfoType.OBJECT){
-                    message(info.get_name());
                     ObjectInfo si = (ObjectInfo) info;
-
-                    message(si.get_n_methods().to_string());
-
+                    RegisteredTypeInfo rtinfo = (RegisteredTypeInfo)info;
+                    Type gtype = rtinfo.get_g_type();
+                    gtype.ensure();
+                    Object obj = Object.new(gtype);
+                    
                     for (int j = 0; j < si.get_n_methods(); j++){
-                        message(si.get_method(j).get_symbol());
+                        var meth = si.get_method(j);
+                        if(meth.get_flags() == GI.FunctionInfoFlags.IS_METHOD){
+                            message("%s with %d args".printf(meth.get_name(), meth.get_n_args()));
+                            for (int a = 0; a < meth.get_n_args(); a++){
+                                var argN = meth.get_arg(a);
+                                message(argN.get_type().get_name());
+                            }
+                            message(meth.get_flags().to_string());
+                            TestFixtureFunc test_methoed = (h) => {
+                                message("hey");
+                            };
+                            var arg = GI.Argument();
+                            arg.v_pointer = (void*)&obj;
+                            meth.invoke({ arg },{ }, Argument());
+                        }
                     }
 
-                   
-
-                
 
                 }
             }

@@ -31,11 +31,11 @@ custom_target(sample_typelib,
     install: true,
     install_dir: get_option('libdir') / 'girepository-1.0')
 
-sample_pc = pkg.generate(
-    libsample,
-    name: sample_base_name,
-    requires: sample_deps,
-    description: 'A sample to try out VUnit against',
-    version: meson.project_version(),
-    url: 'https://github.com/Lindegaard-IT/VUnit'
-)
+#sample_pc = pkg.generate(
+#    libsample,
+#    name: sample_base_name,
+#    requires: sample_deps,
+#    description: 'A sample to try out VUnit against',
+#    version: meson.project_version(),
+#    url: 'https://github.com/Lindegaard-IT/VUnit'
+#)
