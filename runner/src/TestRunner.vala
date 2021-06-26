@@ -45,7 +45,10 @@ namespace VUnit.Runner{
                     message("Trying to find: %s, in: %s".printf(test_namespace, path));
                     runner.repository.require_private(path, test_namespace, null, 0);
                     message("found ya!");
-                    runner.print_rep_info(test_namespace);
+                    var cls = runner.get_test_classes(test_namespace);
+                    foreach (var cl in cls){
+                        message(cl.get_name());
+                    }
                 }catch(Error err){
                     stdout.printf("\nFailed to load namespace: %s, with Typelib in: %s, error was: %s\n", test_namespace, path, err.message);
                     return 2;
@@ -112,15 +115,27 @@ namespace VUnit.Runner{
             return get_argument("path", args);
         }
 
-        private Type[] get_test_classes(string test_namespace){
-            //Gee.List<Type> test_suites = new Gee.ArrayList<Type>();
-            for(var i = 0; i < this.repository.get_n_infos(test_namespace); i++){
-                
-            }
-            Type[] test_types = new Type[1];
-
-            return test_types;
+        private bool object_is_testbase(BaseInfo info){
+            var ri = (RegisteredTypeInfo) info;
+            var gtype = ri.get_g_type();
+            return gtype.is_a(typeof(VUnit.TestBase));
         }
+
+        private Gee.List<RegisteredTypeInfo> get_test_classes(string test_namespace, string class_name_pattern = "[\\w\\d]*Test"){
+            var infos = new Gee.ArrayList<RegisteredTypeInfo>();
+            for(var i = 0; i < this.repository.get_n_infos(test_namespace); i++){
+                var info = this.repository.get_info(test_namespace, i);
+                if ( info.get_type() == InfoType.OBJECT
+                    && this.object_is_testbase(info)
+                    &&  Regex.match_simple(class_name_pattern, info.get_name())) {
+
+                    infos.add((RegisteredTypeInfo)info);
+                }
+            }
+
+            return infos;
+        }
+
 
         private void libInfo(string _namespace){
             this.repository.prepend_library_path("/home/rasmus/Projekter/vala/VUnit/build/vunit/sample");
