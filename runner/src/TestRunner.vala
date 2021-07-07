@@ -12,7 +12,6 @@ namespace VUnit.Runner{
     public class TestRunner : Object{
         internal HashTable<string, Option> options;
         internal Repository repository;
-        public static string[] test_args = {};
 
         public static int main(string[] args){
             var runner = new TestRunner();
@@ -23,7 +22,7 @@ namespace VUnit.Runner{
             //runner.repository.require("Gtk", null, 0);
             string test_namespace = null;
             string? path = runner.get_path(args);
-
+            message("GLib %u.%u", GLib.Version.MAJOR, GLib.Version.MINOR);
             //Get namespace and path from args
             try{
                 test_namespace = runner.get_namespace(args);
@@ -53,13 +52,14 @@ namespace VUnit.Runner{
                     unowned string[] ustrArg = strArg;
                     GLib.Test.init(ref ustrArg);
 
+
+                    var root = GLib.TestSuite.get_root();
+
                     var class_infos = runner.get_test_classes(test_namespace);
                     var suite = runner.build_test_suite(test_namespace, class_infos);
 
-                    var root = GLib.TestSuite.get_root();
-                    root.add_suite(suite);
 
-                    Test.add_func("/some/path", () => { assert (1 != 2); });
+                    root.add_suite(suite);
 
                     GLib.Test.run();
 
@@ -156,7 +156,6 @@ namespace VUnit.Runner{
                 if ( info.get_type() == InfoType.OBJECT
                     && this.object_is_testbase(info)
                     &&  Regex.match_simple(class_name_pattern, info.get_name())) {
-
                     infos.add(new TestSuiteInfo((GI.ObjectInfo)info));
                 }
             }

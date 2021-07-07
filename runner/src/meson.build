@@ -7,7 +7,8 @@
 src = [
     'TestRunner.vala',
     'Option.vala',
-    'TestInfo.vala'
+    'TestCaseInfo.vala',
+    'TestSuiteInfo.vala'
 ]
 
 vunit_runner = executable(

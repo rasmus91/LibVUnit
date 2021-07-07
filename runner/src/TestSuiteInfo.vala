@@ -38,10 +38,10 @@ namespace VUnit.Runner{
             objArg.v_pointer = (void*)instance;
 
             var setup = objectInfo.find_method("set_up");
-            this.set_up = (v) => { message("presetup"); setup.invoke({ objArg }, { }, GI.Argument()); message("postsetup"); };
+            this.set_up = (v) => { setup.invoke({ objArg }, { }, GI.Argument()); message("postsetup"); };
 
             var teardown = objectInfo.find_method("tear_down");
-            this.tear_down = (v) => { teardown.invoke({ objArg }, { }, GI.Argument()); v = objArg.v_pointer; };
+            this.tear_down = (v) => { teardown.invoke({ objArg }, { }, GI.Argument()); };
 
         }
 
