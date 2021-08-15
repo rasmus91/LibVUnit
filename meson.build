@@ -20,21 +20,12 @@ lib_dependencies = [
     #dependency('gdk-pixbuf-2.0'),
 ]
 
-subdir('vunit/src')
+subdir('src')
 
-runner_dependencies = [
-    g_deps,
-    dependency('gobject-introspection-1.0'),
-    dependency('gee-0.8'),
-    vunit_dep
-]
+#sample_deps = [
+#    g_deps,
+#    dependency('vunit-0.1')
+#]
 
-subdir('runner/src')
-
-sample_deps = [
-    g_deps,
-    dependency('vunit-0.1')
-]
-
-subdir('vunit/sample')
+#subdir('sample')
 #Stuff below this is to change if you want to run this on a different library of tests
