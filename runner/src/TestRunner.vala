@@ -16,13 +16,13 @@ namespace VUnit.Runner{
         public static int main(string[] args){
             var runner = new TestRunner();
             //next line must be changed when i find out why VUnit can't be loaded from /usr/local/lib automatically
-            runner.repository.require_private("/usr/local/lib/x86_64-linux-gnu/girepository-1.0", "VUnit", null, 0);
+            /*runner.repository.require_private("/usr/local/lib/x86_64-linux-gnu/girepository-1.0", "VUnit", null, 0);
             var tbinfo = (RegisteredTypeInfo)runner.repository.find_by_name("VUnit", "TestBase");
-            var tbtype = tbinfo.get_g_type();
+            var tbtype = tbinfo.get_g_type();*/
             //runner.repository.require("Gtk", null, 0);
             string test_namespace = null;
             string? path = runner.get_path(args);
-
+            message("GLib %u.%u", GLib.Version.MAJOR, GLib.Version.MINOR);
             //Get namespace and path from args
             try{
                 test_namespace = runner.get_namespace(args);
@@ -44,8 +44,25 @@ namespace VUnit.Runner{
                 try{
                     message("Trying to find: %s, in: %s".printf(test_namespace, path));
                     runner.repository.require_private(path, test_namespace, null, 0);
+                    runner.repository.prepend_library_path("/home/rasmus/Projekter/vala/VUnit/build/vunit/sample");
                     message("found ya!");
-                    runner.print_rep_info(test_namespace);
+
+                    var strArg = new string[1];
+                    strArg[0] = args[0];
+                    unowned string[] ustrArg = strArg;
+                    GLib.Test.init(ref ustrArg);
+
+
+                    var root = GLib.TestSuite.get_root();
+
+                    var class_infos = runner.get_test_classes(test_namespace);
+                    var suite = runner.build_test_suite(test_namespace, class_infos);
+
+
+                    root.add_suite(suite);
+
+                    GLib.Test.run();
+
                 }catch(Error err){
                     stdout.printf("\nFailed to load namespace: %s, with Typelib in: %s, error was: %s\n", test_namespace, path, err.message);
                     return 2;
@@ -112,15 +129,40 @@ namespace VUnit.Runner{
             return get_argument("path", args);
         }
 
-        private Type[] get_test_classes(string test_namespace){
-            //Gee.List<Type> test_suites = new Gee.ArrayList<Type>();
-            for(var i = 0; i < this.repository.get_n_infos(test_namespace); i++){
-                
-            }
-            Type[] test_types = new Type[1];
-
-            return test_types;
+        private bool object_is_testbase(BaseInfo info){
+            var ri = (RegisteredTypeInfo) info;
+            var gtype = ri.get_g_type();
+            return gtype.is_a(typeof(VUnit.TestBase));
         }
+
+        private Gee.List<FunctionInfo> get_testclass_testmethods(ObjectInfo info, string method_name_pattern = "test_[\\w\\d_]*"){
+            var tests = new Gee.ArrayList<FunctionInfo>();
+            for (int i = 0; i < info.get_n_methods(); i++){
+                var test = info.get_method(i);
+                if (
+                    test.get_flags() == GI.FunctionInfoFlags.IS_METHOD
+                    && Regex.match_simple(method_name_pattern, test.get_name())
+                ){
+                    tests.add(test);
+                }
+            }
+            return tests;
+        }
+
+        private Gee.List<TestSuiteInfo> get_test_classes(string test_namespace, string class_name_pattern = "[\\w\\d]*Test"){
+            var infos = new Gee.ArrayList<TestSuiteInfo>();
+            for(var i = 0; i < this.repository.get_n_infos(test_namespace); i++){
+                var info = this.repository.get_info(test_namespace, i);
+                if ( info.get_type() == InfoType.OBJECT
+                    && this.object_is_testbase(info)
+                    &&  Regex.match_simple(class_name_pattern, info.get_name())) {
+                    infos.add(new TestSuiteInfo((GI.ObjectInfo)info));
+                }
+            }
+
+            return infos;
+        }
+
 
         private void libInfo(string _namespace){
             this.repository.prepend_library_path("/home/rasmus/Projekter/vala/VUnit/build/vunit/sample");
@@ -145,7 +187,7 @@ namespace VUnit.Runner{
                     Type gtype = rtinfo.get_g_type();
                     gtype.ensure();
                     Object obj = Object.new(gtype);
-                    
+
                     for (int j = 0; j < si.get_n_methods(); j++){
                         var meth = si.get_method(j);
                         if(meth.get_flags() == GI.FunctionInfoFlags.IS_METHOD){
@@ -167,6 +209,14 @@ namespace VUnit.Runner{
 
                 }
             }
+        }
+
+        private TestSuite build_test_suite(string _namespace, Gee.List<TestSuiteInfo> infos){
+            var root = new TestSuite(_namespace);
+            foreach (var info in infos){
+                root.add_suite(info.create_test_suite());
+            }
+            return root;
         }
 
     }

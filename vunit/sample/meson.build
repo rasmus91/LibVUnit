@@ -2,7 +2,8 @@ pkg = import('pkgconfig')
 g_ir_compiler = find_program('g-ir-compiler')
 
 sample_src = [
-    'Sample.vala'
+    'Sample.vala',
+    'SampleTest.vala'
 ]
 
 sample_base_name = 'VunitTest' + '-' + meson.project_version()#'vunit-1.0.'
